@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  BOARD_COUNT_VALUE_MAX,
   buildBoardState,
   getDayDifference,
 } from '../utils/countdownMath';
@@ -25,6 +24,7 @@ export default function CountdownForm({
   onFormChange,
 }) {
   const [formValues, setFormValues] = useState(initialCountdown);
+  const [nameInputWarning, setNameInputWarning] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -34,6 +34,7 @@ export default function CountdownForm({
       ...initialCountdown,
       mode: getModeForDate(initialCountdown.date, initialCountdown.mode),
     });
+    setNameInputWarning('');
   }, [initialCountdown]);
 
   const nameValidation = useMemo(
@@ -52,34 +53,13 @@ export default function CountdownForm({
   const boardState = buildBoardState(previewCountdown);
 
   const blockingErrors = [];
-  const warnings = [];
 
   if (nameValidation.isEmpty) {
     blockingErrors.push('Add an event name before saving.');
   }
 
-  if (nameValidation.tooLong) {
-    blockingErrors.push('Event name must be 10 characters or fewer after formatting.');
-  }
-
   if (!dateLooksValid) {
-    blockingErrors.push('Choose a valid target date.');
-  }
-
-  if (nameValidation.unsupportedCharacters.length > 0) {
-    warnings.push(
-      `Unsupported characters will be removed on save: ${nameValidation.unsupportedCharacters.join(
-        ' ',
-      )}`,
-    );
-  }
-
-  if (boardState.isFutureCountup) {
-    warnings.push('Count-up mode is pointing at a future date, so the countdown will show D - until that day arrives.');
-  }
-
-  if (boardState.isOverLimit) {
-    warnings.push(`This D-count is over ${BOARD_COUNT_VALUE_MAX}, which may overflow the physical board layout later.`);
+    blockingErrors.push('Choose a target date.');
   }
 
   async function handleSubmit(event) {
@@ -103,8 +83,8 @@ export default function CountdownForm({
       setFormValues(result.countdown);
       setStatusMessage(
         result.storageMode === 'firebase'
-          ? 'Countdown updated.'
-          : 'Countdown updated locally. Set up Firebase to make the updates live online.',
+          ? 'Updated successfully!'
+          : 'Updated locally. Set up Firebase to make the updates live online.',
       );
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to save right now.');
@@ -117,8 +97,21 @@ export default function CountdownForm({
     const { name, value } = event.target;
     const nextValue = name === 'name' ? value.toUpperCase() : value;
 
-    if (name === 'name' && nextValue.length > nameValidation.maxLength) {
-      return;
+    if (name === 'name') {
+      const nextNameValidation = getEventNameValidation(nextValue);
+
+      if (nextValue.length > nameValidation.maxLength) {
+        return;
+      }
+
+      if (nextNameValidation.unsupportedCharacters.length > 0) {
+        setNameInputWarning('Only supports: A-Z, 0-9, and : . - ? !');
+        return;
+      }
+
+      if (nameInputWarning) {
+        setNameInputWarning('');
+      }
     }
 
     onFormChange?.();
@@ -155,6 +148,9 @@ export default function CountdownForm({
         >
           {displayedNameCharacterCount} / {nameValidation.maxLength} characters
         </small>
+        {nameInputWarning && (
+          <small className="field-hint field-hint--warning">{nameInputWarning}</small>
+        )}
       </label>
 
       <label className="field">
@@ -168,24 +164,16 @@ export default function CountdownForm({
         />
       </label>
 
-      {warnings.length > 0 && (
-        <div className="message-block message-block--warning" role="status">
-          {warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </div>
-      )}
-
       {errorMessage && (
-        <div className="message-block message-block--error" role="alert">
-          <p>{errorMessage}</p>
-        </div>
+        <small className="countdown-form-message countdown-form-message--error" role="alert">
+          {errorMessage}
+        </small>
       )}
 
       {statusMessage && (
-        <div className="message-block message-block--success" role="status">
-          <p>{statusMessage}</p>
-        </div>
+        <small className="countdown-form-message countdown-form-message--success" role="status">
+          {statusMessage}
+        </small>
       )}
 
       <button type="submit" className="primary-button" disabled={isSaving}>

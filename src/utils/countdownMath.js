@@ -4,8 +4,6 @@ import {
   normalizeMode,
 } from './validation';
 
-const BOARD_COUNT_VALUE_MAX = 99_999_999;
-
 function parseDateString(dateString) {
   if (!isValidDateString(dateString)) {
     return null;
@@ -79,8 +77,6 @@ export function buildBoardState(countdown, referenceDate = new Date()) {
       value: 0,
       label: 'D minus 0',
       direction: 'countdown',
-      isFutureCountup: false,
-      isOverLimit: false,
       todayString: getTodayStringInTimezone(timezone, referenceDate),
     };
   }
@@ -96,8 +92,6 @@ export function buildBoardState(countdown, referenceDate = new Date()) {
       value,
       label: `D ${sign === '+' ? 'plus' : 'minus'} ${value}`,
       direction: 'countup',
-      isFutureCountup: sign === '-',
-      isOverLimit: value > BOARD_COUNT_VALUE_MAX,
       todayString: getTodayStringInTimezone(timezone, referenceDate),
     };
   }
@@ -111,10 +105,6 @@ export function buildBoardState(countdown, referenceDate = new Date()) {
     value,
     label: `D ${sign === '+' ? 'plus' : 'minus'} ${value}`,
     direction: 'countdown',
-    isFutureCountup: false,
-    isOverLimit: value > BOARD_COUNT_VALUE_MAX,
     todayString: getTodayStringInTimezone(timezone, referenceDate),
   };
 }
-
-export { BOARD_COUNT_VALUE_MAX };

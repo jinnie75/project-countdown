@@ -62,8 +62,8 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  max-width: 1120px;
-  margin: 0 auto 1.5rem;
+  width: 100%;
+  margin: 0 0 1.5rem;
 }
 
 .display-toolbar {
@@ -86,9 +86,8 @@ select {
 }
 
 .display-footer {
-  max-width: 1120px;
   width: 100%;
-  margin: 1.5rem auto 0;
+  margin: 1.5rem 0 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -267,6 +266,23 @@ select {
 
 .field small.field-counter--limit {
   color: var(--error);
+}
+
+.field small.field-hint--warning {
+  color: var(--warning);
+}
+
+.countdown-form small.countdown-form-message {
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.countdown-form small.countdown-form-message--error {
+  color: var(--error);
+}
+
+.countdown-form small.countdown-form-message--success {
+  color: var(--success);
 }
 
 .primary-button {
@@ -485,8 +501,6 @@ select {
   }
 
   .page-nav,
-  .display-toolbar,
-  .display-footer,
   .panel-heading,
   .board-header {
     flex-direction: column;
