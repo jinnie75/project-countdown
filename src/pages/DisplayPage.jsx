@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SplitFlapBoard from '../components/SplitFlapBoard';
 import { fetchCurrentCountdown } from '../services/countdownService';
@@ -72,12 +73,7 @@ export default function DisplayPage() {
           <span className="sync-pill sync-pill--local">Local Preview</span>
         )}
         <Link to="/edit" className="icon-link icon-link--edit" aria-label="Edit countdown">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M4 20h4.75L19 9.75 14.25 5 4 15.25V20zm12.06-16.06 2 2a1.5 1.5 0 0 1 0 2.12l-1 1L12.31 4.31l1-1a1.5 1.5 0 0 1 2.12 0z"
-              fill="currentColor"
-            />
-          </svg>
+          <Pencil aria-hidden="true" />
         </Link>
       </header>
 

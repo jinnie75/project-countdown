@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CountdownForm from '../components/CountdownForm';
 import {
@@ -61,7 +62,9 @@ export default function EditPage() {
   return (
     <main className="page page--edit">
       <header className="page-nav">
-        <Link to="/display" className="text-link">Back</Link>
+        <Link to="/display" className="icon-link" aria-label="Back to display">
+          <ChevronLeft aria-hidden="true" />
+        </Link>
       </header>
 
       {isLoading && (

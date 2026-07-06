@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import SplitFlapBoard from './SplitFlapBoard';
-import { BOARD_COUNT_VALUE_MAX, buildBoardState } from '../utils/countdownMath';
+import {
+  BOARD_COUNT_VALUE_MAX,
+  buildBoardState,
+  getDayDifference,
+} from '../utils/countdownMath';
 import {
   getDefaultTimezone,
   getEventNameValidation,
@@ -30,6 +33,16 @@ function getTimezoneOptions(currentTimezone) {
   ).sort((left, right) => left.localeCompare(right));
 }
 
+function getModeForDate(date, timezone, fallbackMode = 'countdown') {
+  const dayDifference = getDayDifference(date, timezone);
+
+  if (dayDifference === null) {
+    return fallbackMode;
+  }
+
+  return dayDifference >= 1 ? 'countdown' : 'countup';
+}
+
 export default function CountdownForm({
   initialCountdown,
   storageMode,
@@ -41,13 +54,24 @@ export default function CountdownForm({
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    setFormValues(initialCountdown);
+    setFormValues({
+      ...initialCountdown,
+      mode: getModeForDate(
+        initialCountdown.date,
+        initialCountdown.timezone,
+        initialCountdown.mode,
+      ),
+    });
   }, [initialCountdown]);
 
   const nameValidation = useMemo(
     () => getEventNameValidation(formValues.name),
     [formValues.name],
   );
+  const displayedNameCharacterCount = formValues.name.length;
+  const decidedModeLabel = formValues.mode === 'countup'
+    ? 'count up from'
+    : 'count down until';
 
   const timezoneLooksValid = isValidTimezone(formValues.timezone);
   const dateLooksValid = isValidDateString(formValues.date);
@@ -90,7 +114,7 @@ export default function CountdownForm({
   }
 
   if (boardState.isFutureCountup) {
-    warnings.push('Count-up mode is pointing at a future date, so the preview shows D - until that day arrives.');
+    warnings.push('Count-up mode is pointing at a future date, so the countdown will show D - until that day arrives.');
   }
 
   if (boardState.isOverLimit) {
@@ -113,12 +137,13 @@ export default function CountdownForm({
       const result = await onSave({
         ...formValues,
         name: nameValidation.sanitizedName,
+        mode: getModeForDate(formValues.date, formValues.timezone, formValues.mode),
       });
       setFormValues(result.countdown);
       setStatusMessage(
         result.storageMode === 'firebase'
-          ? 'Countdown updated in Firebase.'
-          : 'Countdown saved locally. Add Firebase env vars to sync it remotely.',
+          ? 'Countdown updated.'
+          : 'Countdown updated locally. Set up Firebase to make the updates live.',
       );
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to save right now.');
@@ -129,11 +154,25 @@ export default function CountdownForm({
 
   function handleFieldChange(event) {
     const { name, value } = event.target;
+    const nextValue = name === 'name' ? value.toUpperCase() : value;
+
+    if (name === 'name' && nextValue.length > nameValidation.maxLength) {
+      return;
+    }
+
     setStatusMessage('');
     setErrorMessage('');
     setFormValues((currentValues) => ({
       ...currentValues,
-      [name]: value,
+      [name]: nextValue,
+      mode:
+        name === 'date' || name === 'timezone'
+          ? getModeForDate(
+            name === 'date' ? nextValue : currentValues.date,
+            name === 'timezone' ? nextValue : currentValues.timezone,
+            currentValues.mode,
+          )
+          : currentValues.mode,
     }));
   }
 
@@ -157,32 +196,30 @@ export default function CountdownForm({
               name="name"
               value={formValues.name}
               onChange={handleFieldChange}
+              maxLength={nameValidation.maxLength}
               placeholder="Calc finals"
               autoComplete="off"
             />
-            <small>{nameValidation.characterCount} / {nameValidation.maxLength} characters</small>
+            <small
+              className={
+                displayedNameCharacterCount >= nameValidation.maxLength
+                  ? 'field-counter field-counter--limit'
+                  : 'field-counter'
+              }
+            >
+              {displayedNameCharacterCount} / {nameValidation.maxLength} characters
+            </small>
           </label>
 
           <label className="field">
             <span>Date</span>
+            <small>{decidedModeLabel}</small>
             <input
               type="date"
               name="date"
               value={formValues.date}
               onChange={handleFieldChange}
             />
-          </label>
-
-          <label className="field">
-            <span>Mode</span>
-            <select
-              name="mode"
-              value={formValues.mode}
-              onChange={handleFieldChange}
-            >
-              <option value="countdown">Count down from</option>
-              <option value="countup">Count up since</option>
-            </select>
           </label>
 
           <label className="field">
@@ -226,19 +263,6 @@ export default function CountdownForm({
             {isSaving ? 'Saving...' : 'Update countdown'}
           </button>
         </form>
-      </section>
-
-      <section className="panel panel--preview">
-        <div className="panel-heading">
-          <div>
-            <h2>Preview</h2>
-          </div>
-        </div>
-
-        <SplitFlapBoard
-          name={nameValidation.sanitizedName || 'UNTITLED'}
-          boardState={boardState}
-        />
       </section>
     </div>
   );

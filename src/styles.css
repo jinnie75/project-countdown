@@ -108,7 +108,7 @@ select {
   max-width: 1120px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
@@ -202,6 +202,10 @@ select {
 
 .field small {
   color: var(--text-muted);
+}
+
+.field small.field-counter--limit {
+  color: var(--error);
 }
 
 .primary-button {
