@@ -14,7 +14,6 @@ For the MVP, the app is designed around a single shared countdown record stored 
 - Mobile-friendly display and edit pages
 - One active countdown record
 - `countdown` and `countup` modes
-- Timezone-aware day math using IANA timezone strings
 - Event-name validation for board constraints
 - Split-flap inspired board preview on both the display and edit flows
 - Firebase Realtime Database service layer kept separate from UI code
@@ -71,7 +70,6 @@ If they are left blank, the app runs in local preview mode and stores the countd
     "current": {
       "name": "CALC FINALS",
       "date": "2026-12-20",
-      "timezone": "America/New_York",
       "mode": "countdown",
       "updatedAt": 1784567890000
     }
@@ -88,7 +86,7 @@ If they are left blank, the app runs in local preview mode and stores the countd
 - In `countup` mode:
   - On the date: `D + 0`
   - After the date: `D + N`
-  - Before the date: the app previews `D - N` and warns that the date is still in the future
+- Before the date: the app previews `D - N` and warns that the date is still in the future
 
 Event-name constraints:
 

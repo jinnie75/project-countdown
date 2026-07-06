@@ -8,15 +8,6 @@ export function getDefaultTimezone() {
   return resolved || DEFAULT_TIMEZONE;
 }
 
-export function isValidTimezone(timezone) {
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone: timezone }).format(new Date());
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function sanitizeEventName(value = '') {
   return value
     .toUpperCase()
@@ -61,17 +52,12 @@ export function normalizeMode(mode) {
   return mode === 'countup' ? 'countup' : 'countdown';
 }
 
-export function normalizeTimezone(timezone) {
-  return isValidTimezone(timezone) ? timezone : getDefaultTimezone();
-}
-
 export function normalizeCountdownRecord(record) {
   const now = Date.now();
 
   return {
     name: sanitizeEventName(record?.name || ''),
     date: isValidDateString(record?.date || '') ? record.date : '',
-    timezone: normalizeTimezone(record?.timezone),
     mode: normalizeMode(record?.mode),
     updatedAt:
       typeof record?.updatedAt === 'number' && Number.isFinite(record.updatedAt)

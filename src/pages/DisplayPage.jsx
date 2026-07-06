@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import SplitFlapBoard from '../components/SplitFlapBoard';
+import EditPage from './EditPage';
 import { fetchCurrentCountdown } from '../services/countdownService';
 import { buildBoardState } from '../utils/countdownMath';
 
@@ -24,6 +24,7 @@ export default function DisplayPage() {
   const [storageMode, setStorageMode] = useState('local');
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,40 +67,59 @@ export default function DisplayPage() {
 
   const boardState = countdown ? buildBoardState(countdown) : null;
 
+  function handleEditSaved(result) {
+    setCountdown(result.countdown);
+    setStorageMode(result.storageMode);
+  }
+
   return (
-    <main className="page page--display">
-      <header className="display-toolbar">
-        {storageMode === 'local' && (
-          <span className="sync-pill sync-pill--local">Local Preview</span>
-        )}
-        <Link to="/edit" className="icon-link icon-link--edit" aria-label="Edit countdown">
-          <Pencil aria-hidden="true" />
-        </Link>
-      </header>
+    <>
+      <main className="page page--display">
+        <header className="display-toolbar">
+          {storageMode === 'local' && (
+            <span className="sync-pill sync-pill--local">Local Preview</span>
+          )}
+          <button
+            type="button"
+            className="icon-link icon-link--edit icon-button"
+            aria-label="Edit countdown"
+            onClick={() => setIsEditOpen(true)}
+          >
+            <Pencil aria-hidden="true" />
+          </button>
+        </header>
 
-      <section className="display-stage">
-        {isLoading && (
-          <div className="panel panel--status">
-            <p>Loading board...</p>
-          </div>
-        )}
+        <section className="display-stage">
+          {isLoading && (
+            <div className="panel panel--status">
+              <p>Loading board...</p>
+            </div>
+          )}
 
-        {!isLoading && errorMessage && (
-          <div className="panel panel--status panel--error">
-            <p>{errorMessage}</p>
-          </div>
-        )}
+          {!isLoading && errorMessage && (
+            <div className="panel panel--status panel--error">
+              <p>{errorMessage}</p>
+            </div>
+          )}
 
-        {!isLoading && countdown && boardState && (
-          <SplitFlapBoard name={countdown.name || 'UNTITLED'} boardState={boardState} />
-        )}
-      </section>
+          {!isLoading && countdown && boardState && (
+            <SplitFlapBoard name={countdown.name || 'UNTITLED'} boardState={boardState} />
+          )}
+        </section>
 
-      {!isLoading && countdown && (
-        <footer className="display-footer">
-          <p>Updated at {formatUpdatedTime(countdown.updatedAt)}</p>
-        </footer>
+        {!isLoading && countdown && (
+          <footer className="display-footer">
+            <p>Updated at {formatUpdatedTime(countdown.updatedAt)}</p>
+          </footer>
+        )}
+      </main>
+
+      {isEditOpen && (
+        <EditPage
+          onClose={() => setIsEditOpen(false)}
+          onSaved={handleEditSaved}
+        />
       )}
-    </main>
+    </>
   );
 }

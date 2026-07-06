@@ -1,7 +1,6 @@
 import { get, ref, set } from 'firebase/database';
 import { getFirebaseDatabase, isFirebaseConfigured } from './firebase';
 import {
-  getDefaultTimezone,
   normalizeCountdownRecord,
   sanitizeEventName,
 } from '../utils/validation';
@@ -27,7 +26,6 @@ function buildDefaultCountdown() {
   return normalizeCountdownRecord({
     name: 'PROJECT COUNT',
     date: buildDefaultDateString(),
-    timezone: getDefaultTimezone(),
     mode: 'countdown',
     updatedAt: Date.now(),
   });

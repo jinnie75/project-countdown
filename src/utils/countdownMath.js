@@ -2,7 +2,6 @@ import {
   getDefaultTimezone,
   isValidDateString,
   normalizeMode,
-  normalizeTimezone,
 } from './validation';
 
 const BOARD_COUNT_VALUE_MAX = 99_999_999;
@@ -37,7 +36,7 @@ function toEpochDay(year, month, day) {
 
 export function getTodayStringInTimezone(timezone, referenceDate = new Date()) {
   const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: normalizeTimezone(timezone),
+    timeZone: timezone || getDefaultTimezone(),
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -48,10 +47,10 @@ export function getTodayStringInTimezone(timezone, referenceDate = new Date()) {
   return `${lookup.year}-${lookup.month}-${lookup.day}`;
 }
 
-export function getDayDifference(dateString, timezone, referenceDate = new Date()) {
+export function getDayDifference(dateString, referenceDate = new Date()) {
   const targetParts = parseDateString(dateString);
   const todayParts = parseDateString(
-    getTodayStringInTimezone(timezone || getDefaultTimezone(), referenceDate),
+    getTodayStringInTimezone(getDefaultTimezone(), referenceDate),
   );
 
   if (!targetParts || !todayParts) {
@@ -69,9 +68,9 @@ export function getDayDifference(dateString, timezone, referenceDate = new Date(
 }
 
 export function buildBoardState(countdown, referenceDate = new Date()) {
-  const timezone = normalizeTimezone(countdown?.timezone);
+  const timezone = getDefaultTimezone();
   const mode = normalizeMode(countdown?.mode);
-  const difference = getDayDifference(countdown?.date, timezone, referenceDate);
+  const difference = getDayDifference(countdown?.date, referenceDate);
 
   if (difference === null) {
     return {
