@@ -92,7 +92,7 @@ Event-name constraints:
 
 - Uppercased on save
 - Max 16 characters
-- Allowed characters: letters, numbers, and `: . - ? !`
+- Allowed characters: letters, numbers, spaces, and `: . - ? !`
 
 ## Suggested deployment to Firebase Hosting
 

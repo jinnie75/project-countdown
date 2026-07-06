@@ -115,13 +115,12 @@ select {
 }
 
 .modal-dialog {
-  width: min(100%, 330px);
+  width: min(100%, 500px);
   max-height: calc(100vh - 2.5rem);
   overflow: auto;
   display: grid;
   gap: 0.75rem;
-  padding: 1.05rem 1rem 1.25rem;
-  border-radius: 18px;
+  padding: 1.3rem 1.5rem 1.5rem;
   background: #d9d7d7;
   box-shadow: 0 22px 55px rgba(39, 31, 24, 0.18);
 }
@@ -405,7 +404,7 @@ select {
   --tile-font-size-compact: calc(var(--tile-font-size) * 0.92);
 
   padding: var(--board-pad);
-  border-radius: 28px;
+  border-radius: 0px;
   background:
     linear-gradient(180deg, rgba(42, 42, 42, 0.96), rgba(14, 14, 14, 1)),
     #111111;
@@ -517,7 +516,6 @@ select {
 
   .board-shell {
     width: 100%;
-    border-radius: 22px;
   }
 
   .board-row--count {

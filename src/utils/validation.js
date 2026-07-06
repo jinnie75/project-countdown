@@ -1,6 +1,6 @@
 const BOARD_ROW_LENGTH = 10;
 const BOARD_NAME_MAX_LENGTH = BOARD_ROW_LENGTH;
-const SUPPORTED_NAME_PATTERN = /[^A-Z0-9:.\-?!]/g;
+const SUPPORTED_NAME_PATTERN = /[^A-Z0-9 :.\-?!]/g;
 const DEFAULT_TIMEZONE = 'America/New_York';
 
 export function getDefaultTimezone() {

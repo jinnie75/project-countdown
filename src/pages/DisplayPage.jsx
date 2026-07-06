@@ -4,19 +4,21 @@ import SplitFlapBoard from '../components/SplitFlapBoard';
 import EditPage from './EditPage';
 import { fetchCurrentCountdown } from '../services/countdownService';
 import { buildBoardState } from '../utils/countdownMath';
+import { isValidDateString } from '../utils/validation';
 
-function formatUpdatedTime(timestamp) {
+function formatDisplayDate(dateString) {
+  if (!isValidDateString(dateString)) {
+    return '';
+  }
+
+  const [year, month, day] = dateString.split('-').map(Number);
+
   return new Intl.DateTimeFormat('en-US', {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(new Date(timestamp))
-    .replace(', ', ' ')
-    .replace(' AM', 'AM')
-    .replace(' PM', 'PM');
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
 export default function DisplayPage() {
@@ -109,7 +111,10 @@ export default function DisplayPage() {
 
         {!isLoading && countdown && (
           <footer className="display-footer">
-            <p>Updated at {formatUpdatedTime(countdown.updatedAt)}</p>
+            <p>
+              {boardState?.direction === 'countup' ? 'Counting up from ' : 'Counting down from '}
+              {formatDisplayDate(countdown.date)}
+            </p>
           </footer>
         )}
       </main>

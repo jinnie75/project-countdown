@@ -32,7 +32,7 @@ export default function CountdownForm({
   useEffect(() => {
     setFormValues({
       ...initialCountdown,
-      mode: getModeForDate(initialCountdown.date, initialCountdown.mode),
+      mode: getModeForDate(initialCountdown.date),
     });
     setNameInputWarning('');
   }, [initialCountdown]);
@@ -42,10 +42,8 @@ export default function CountdownForm({
     [formValues.name],
   );
   const displayedNameCharacterCount = formValues.name.length;
-  const decidedModeLabel = formValues.mode === 'countup'
-    ? 'count up from'
-    : 'count down from';
   const dateLooksValid = isValidDateString(formValues.date);
+  const isCountup = dateLooksValid && formValues.mode === 'countup';
   const previewCountdown = {
     ...formValues,
     name: nameValidation.sanitizedName || 'UNTITLED',
@@ -78,7 +76,7 @@ export default function CountdownForm({
       const result = await onSave({
         ...formValues,
         name: nameValidation.sanitizedName,
-        mode: getModeForDate(formValues.date, formValues.mode),
+        mode: getModeForDate(formValues.date),
       });
       setFormValues(result.countdown);
       setStatusMessage(
@@ -105,7 +103,7 @@ export default function CountdownForm({
       }
 
       if (nextNameValidation.unsupportedCharacters.length > 0) {
-        setNameInputWarning('Only supports: A-Z, 0-9, and : . - ? !');
+        setNameInputWarning('Only supports: A-Z, 0-9, spaces, and : . - ? !');
         return;
       }
 
@@ -122,7 +120,7 @@ export default function CountdownForm({
       [name]: nextValue,
       mode:
         name === 'date'
-          ? getModeForDate(nextValue, currentValues.mode)
+          ? getModeForDate(nextValue)
           : currentValues.mode,
     }));
   }
@@ -155,7 +153,7 @@ export default function CountdownForm({
 
       <label className="field">
         <span>Date</span>
-        <small>{decidedModeLabel}</small>
+        <small><strong>{isCountup ? 'count up' : 'count down'}</strong> from</small>
         <input
           type="date"
           name="date"
