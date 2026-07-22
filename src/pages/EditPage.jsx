@@ -59,7 +59,7 @@ export default function EditPage({ onClose, onSaved }) {
 
     const timeoutId = window.setTimeout(() => {
       onClose?.();
-    }, 3000);
+    }, 2000); // 2-sec delay before modal closes on its own
 
     return () => {
       window.clearTimeout(timeoutId);

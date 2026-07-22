@@ -1,4 +1,4 @@
-import { get, ref, set } from 'firebase/database';
+import { get, onValue, ref, set } from 'firebase/database';
 import { getFirebaseDatabase, isFirebaseConfigured } from './firebase';
 import {
   normalizeCountdownRecord,
@@ -48,6 +48,10 @@ function setLocalCountdown(countdown) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(countdown));
 }
 
+function getFallbackCountdown(localCountdown = getLocalCountdown()) {
+  return localCountdown || buildDefaultCountdown();
+}
+
 function prepareCountdownForSave(countdown) {
   return normalizeCountdownRecord({
     ...countdown,
@@ -61,7 +65,7 @@ export async function fetchCurrentCountdown() {
 
   if (!isFirebaseConfigured()) {
     return {
-      countdown: localCountdown || buildDefaultCountdown(),
+      countdown: getFallbackCountdown(localCountdown),
       storageMode: 'local',
     };
   }
@@ -72,7 +76,7 @@ export async function fetchCurrentCountdown() {
 
     if (!snapshot.exists()) {
       return {
-        countdown: localCountdown || buildDefaultCountdown(),
+        countdown: getFallbackCountdown(localCountdown),
         storageMode: 'firebase',
       };
     }
@@ -86,7 +90,7 @@ export async function fetchCurrentCountdown() {
     };
   } catch {
     return {
-      countdown: localCountdown || buildDefaultCountdown(),
+      countdown: getFallbackCountdown(localCountdown),
       storageMode: 'local',
     };
   }
@@ -117,4 +121,50 @@ export async function saveCurrentCountdown(countdown) {
       storageMode: 'local',
     };
   }
+}
+
+export function subscribeToCurrentCountdown({ onCountdown, onError } = {}) {
+  if (typeof window === 'undefined' || typeof onCountdown !== 'function') {
+    return () => {};
+  }
+
+  if (!isFirebaseConfigured()) {
+    function handleStorage(event) {
+      if (event.key !== STORAGE_KEY) {
+        return;
+      }
+
+      onCountdown({
+        countdown: getFallbackCountdown(),
+        storageMode: 'local',
+      });
+    }
+
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }
+
+  const database = getFirebaseDatabase();
+  const countdownRef = ref(database, COUNTDOWN_PATH);
+
+  return onValue(
+    countdownRef,
+    (snapshot) => {
+      const countdown = snapshot.exists()
+        ? normalizeCountdownRecord(snapshot.val())
+        : getFallbackCountdown();
+
+      setLocalCountdown(countdown);
+      onCountdown({
+        countdown,
+        storageMode: 'firebase',
+      });
+    },
+    (error) => {
+      onError?.(error);
+    },
+  );
 }

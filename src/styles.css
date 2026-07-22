@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-family: "Courier", "Avenir Next", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #111111;
@@ -446,11 +446,10 @@ select {
 
 .split-flap-tile {
   position: relative;
-  display: grid;
-  place-items: center;
   aspect-ratio: 5 / 6;
   border-radius: 12px;
   overflow: hidden;
+  perspective: 900px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
     linear-gradient(180deg, #202020 0%, #171717 48%, #101010 49%, #101010 100%);
@@ -471,21 +470,142 @@ select {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
-.split-flap-tile span {
+.split-flap-tile__panel,
+.split-flap-tile__flip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.split-flap-tile__panel {
+  height: 50%;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.split-flap-tile__panel--top {
+  top: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.18));
+}
+
+.split-flap-tile__panel--bottom {
+  bottom: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), transparent 38%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.02));
+}
+
+.split-flap-tile__flip {
+  top: 0;
+  height: 50%;
+  transform-origin: bottom center;
+  transform: rotateX(0deg);
+  opacity: 0;
+  z-index: 2;
+  backface-visibility: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 32%),
+    linear-gradient(180deg, #232323 0%, #141414 100%);
+}
+
+.split-flap-tile__panel-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 200%;
+  display: grid;
+  place-items: center;
+  padding-inline: 0.12em;
+}
+
+.split-flap-tile__panel-content--top {
+  top: 0;
+}
+
+.split-flap-tile__panel-content--bottom {
+  bottom: 0;
+}
+
+.split-flap-tile__character {
   position: relative;
   z-index: 1;
   font-family: "SFMono-Regular", "Roboto Mono", "Menlo", monospace;
   font-size: var(--tile-font-size);
   font-weight: 700;
   letter-spacing: 0.08em;
+  line-height: 1;
 }
 
-.split-flap-tile--compact span {
+.split-flap-tile--compact .split-flap-tile__character {
   font-size: var(--tile-font-size-compact);
 }
 
 .split-flap-tile--accent {
   color: #f0b88d;
+}
+
+.split-flap-tile--flutter {
+  animation: splitFlapFlutter 140ms ease-in-out 2;
+}
+
+.split-flap-tile--flutter .split-flap-tile__panel--top {
+  animation: splitFlapTopShake 140ms ease-in-out 2;
+}
+
+.split-flap-tile--flip .split-flap-tile__flip {
+  opacity: 1;
+  animation: splitFlapFlip 180ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+@keyframes splitFlapFlutter {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-1px);
+  }
+
+  60% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes splitFlapTopShake {
+  0%,
+  100% {
+    transform: rotateX(0deg);
+    filter: brightness(1);
+  }
+
+  40% {
+    transform: rotateX(-12deg);
+    filter: brightness(1.08);
+  }
+
+  70% {
+    transform: rotateX(7deg);
+  }
+}
+
+@keyframes splitFlapFlip {
+  0% {
+    transform: rotateX(0deg);
+    filter: brightness(1);
+  }
+
+  65% {
+    transform: rotateX(-88deg);
+    filter: brightness(1.08);
+  }
+
+  100% {
+    transform: rotateX(-90deg);
+    filter: brightness(0.96);
+  }
 }
 
 @media (max-width: 920px) {
